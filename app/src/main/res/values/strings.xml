@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">DOCS_app</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">邮箱</string>
+    <string name="prompt_password">密码</string>
+    <string name="action_sign_in">登录</string>
+    <string name="action_sign_in_short">登录</string>
+    <string name="error_invalid_email">邮箱格式无效</string>
+    <string name="error_invalid_password">长度太短了</string>
+    <string name="error_incorrect_password">密码不正确</string>
+    <string name="error_field_required">必填项</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_login">登录</string>
+    <string name="title_activity_regist">注册</string>
+    <string name="title_activity_forgot">找回密码</string>
+    <string name="forgot_psw"><a href='http://www.baidu.com'>?忘记密码</a></string>
+    <string name="user_regist"><a href='http://www.baidu.com'>用户注册</a></string>
+</resources>
