@@ -30,10 +30,18 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.asus_wh.docs_app.Utils.CheckInput;
+import com.example.asus_wh.docs_app.Utils.ShowToastTip;
+import com.example.asus_wh.docs_app.bean.User;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.SaveListener;
 import cutsom_imageview.RoundimageView;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -106,9 +114,54 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
         btn_login.setOnClickListener(new OnClickListener() {
+            User user=new User();
+            //User existUser;
+            BmobQuery<User> query=new BmobQuery<User>();
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                if(CheckInput.isEmail(mEmailView)&&CheckInput.check_password(mPasswordView)){
+                    query.addWhereEqualTo("email",mEmailView.getText().toString());
+                    query.findObjects(new FindListener<User>() {
+                        @Override
+                        public void done(List<User> list, BmobException e) {
+                            if(e==null) {
+                                user.setUsername(list.get(0).getUsername());
+                                //ShowToastTip.showTips(LoginActivity.this,list.get(0).getUsername());
+                                user.setPassword(mPasswordView.getText().toString());
+                                user.setEmail(mEmailView.getText().toString());
+                                user.login(new SaveListener<User>() {
+                                    @Override
+                                    public void done(User user, BmobException e) {
+                                        if(e==null){
+                                            ShowToastTip.showTips(LoginActivity.this,"登陆成功");
+                                        }
+                                        else{
+                                            ShowToastTip.showTips(LoginActivity.this,"密码错误");
+                                        }
+                                    }
+                                });
+                            }
+                            else{
+                                ShowToastTip.showTips(LoginActivity.this,"该邮箱还未注册");
+                                return;
+                            }
+                        }
+                    });
+                    /*user.setPassword(mPasswordView.getText().toString());
+                    user.setEmail(mEmailView.getText().toString());
+                    user.login(new SaveListener<User>() {
+                        @Override
+                        public void done(User user, BmobException e) {
+                            if(e==null){
+                                ShowToastTip.showTips(LoginActivity.this,"登陆成功");
+                            }
+                            else{
+                                ShowToastTip.showTips(LoginActivity.this,"密码错误");
+                            }
+                        }
+                    });*/
+
+                }
             }
         });
         btn_forgot.setOnClickListener(new OnClickListener() {
