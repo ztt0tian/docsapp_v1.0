@@ -11,7 +11,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.FileProvider;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.asus_wh.docs_app.Utils.CheckInput;
+import com.example.asus_wh.docs_app.Utils.FileProvider7;
 import com.example.asus_wh.docs_app.Utils.ShowToastTip;
 import com.example.asus_wh.docs_app.bean.User;
 
@@ -52,7 +55,7 @@ public class RegistActivity extends ActionBarActivity {
     public static final int CHOOSE_PHOTO = 2;
 
     public static final int CUT_PHOTO = 3;
-    final User regist_user=new User();
+    final User regist_user = new User();
     /*private OnBooleanListener onPermissionListener;
 
     public void onPermissionRequests(String permission, OnBooleanListener onBooleanListener) {
@@ -103,7 +106,7 @@ public class RegistActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_regist);
-        Bmob.initialize(this,"8afbcaae22fc8ee6739956da9cbc2d7a");
+        Bmob.initialize(this, "8afbcaae22fc8ee6739956da9cbc2d7a");
         Init();
         regist_btn_rest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -155,7 +158,7 @@ public class RegistActivity extends ActionBarActivity {
         regist_btn_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(check_Input_format()){
+                if (check_Input_format()) {
                     UploadIcon();
                     regist_user.setUsername(regist_name.getText().toString());
                     regist_user.setPassword(regist_password.getText().toString());
@@ -163,17 +166,15 @@ public class RegistActivity extends ActionBarActivity {
                     regist_user.signUp(new SaveListener<User>() {
                         @Override
                         public void done(User user, BmobException e) {
-                            if(e==null){
-                                ShowToastTip.showTips(RegistActivity.this,"注册成功");
+                            if (e == null) {
+                                ShowToastTip.showTips(RegistActivity.this, "注册成功");
                                 RegistActivity.this.finish();
-                            }
-                            else{
-                                ShowToastTip.showTips(RegistActivity.this,"注册失败"+e.getMessage());
+                            } else {
+                                ShowToastTip.showTips(RegistActivity.this, "注册失败" + e.getMessage());
                             }
                         }
                     });
-                }
-                else{
+                } else {
                     return;
                 }
             }
@@ -191,22 +192,21 @@ public class RegistActivity extends ActionBarActivity {
         });
     }
 
-    public void Init(){
-        regist_name=(TextView)findViewById(R.id.regist_name);
-        regist_password=(TextView)findViewById(R.id.regist_password);
-        regist_email=(TextView)findViewById(R.id.regist_email);
-        regist_second_password=(TextView)findViewById(R.id.second_password);
-        regist_btn_rest=(Button)findViewById(R.id.regist_reset);
-        regist_btn_ok=(Button)findViewById(R.id.regist_ok);
-        //regist_btn_changeIcon=(Button)findViewById(R.id.change_icon);
-        icon=(CircleImageView) findViewById(R.id.regist_icon);
+    public void Init() {
+        regist_name = (TextView) findViewById(R.id.regist_name);
+        regist_password = (TextView) findViewById(R.id.regist_password);
+        regist_email = (TextView) findViewById(R.id.regist_email);
+        regist_second_password = (TextView) findViewById(R.id.second_password);
+        regist_btn_rest = (Button) findViewById(R.id.regist_reset);
+        regist_btn_ok = (Button) findViewById(R.id.regist_ok);
+        icon = (CircleImageView) findViewById(R.id.regist_icon);
     }
-    public boolean check_Input_format(){
-        if(CheckInput.check_textview(regist_name)&&CheckInput.isEmail(regist_email)&&CheckInput.check_password(regist_password)){
-            if(regist_second_password.getText().toString().equals(regist_password.getText().toString())){
+
+    public boolean check_Input_format() {
+        if (CheckInput.check_textview(regist_name) && CheckInput.isEmail(regist_email) && CheckInput.check_password(regist_password)) {
+            if (regist_second_password.getText().toString().equals(regist_password.getText().toString())) {
                 return true;
-            }
-            else{
+            } else {
                 regist_second_password.setError("前后密码不一致");
                 regist_second_password.requestFocus();
                 return false;
@@ -214,9 +214,10 @@ public class RegistActivity extends ActionBarActivity {
         }
         return false;
     }
+
     //拍照
-    public void pickImageFromCamera(){
-        String state = Environment.getExternalStorageState();
+    public void pickImageFromCamera() {
+       /* String state = Environment.getExternalStorageState();
         if (state.equals(Environment.MEDIA_MOUNTED)) {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
@@ -224,18 +225,25 @@ public class RegistActivity extends ActionBarActivity {
                 file.mkdirs();
             }
             mFile = new File(file, System.currentTimeMillis() + ".jpg");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 //赋予权限
                 //intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                Uri uri = FileProvider.getUriForFile(RegistActivity.this, RegistActivity.this.getPackageName()+ ".fileprovider", mFile);
+                Uri uri = FileProvider.getUriForFile(RegistActivity.this, RegistActivity.this.getPackageName() + ".fileprovider", mFile);
                 //举个栗子
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri/*Uri.fromFile(mFile)*/);
+                List<ResolveInfo> resInfoList = getPackageManager()
+                        .queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri*//*Uri.fromFile(mFile)*//*);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            } else
-            {
+
+            } else {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mFile));
-            }
+            }*/
+                takePhotoNoCompress(icon);
 
 
 
@@ -243,14 +251,15 @@ public class RegistActivity extends ActionBarActivity {
             Uri iconUri= FileProvider.getUriForFile(RegistActivity.this,RegistActivity.this.getPackageName()+ ".fileprovider",mFile);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.putExtra(MediaStore.EXTRA_OUTPUT, iconUri*//*Uri.fromFile(mFile)*//*);*/
-            intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
-            startActivityForResult(intent, TAKE_PHOTO);
-        } else {
+           // intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+           // startActivityForResult(intent, TAKE_PHOTO);
+       /* } else {
             Toast.makeText(this, "请确认已经插入SD卡", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
+
     //从相册获取图片
-    public void pickImageFromAlbum(){
+    public void pickImageFromAlbum() {
         Intent picIntent = new Intent(Intent.ACTION_PICK, null);
         picIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(picIntent, CHOOSE_PHOTO);
@@ -261,7 +270,9 @@ public class RegistActivity extends ActionBarActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case TAKE_PHOTO:
-                    startPhotoZoom(/*Uri.fromFile(mFile)*/FileProvider.getUriForFile(RegistActivity.this,RegistActivity.this.getPackageName()+ ".fileprovider",mFile));
+
+                    /*startPhotoZoom(*//*Uri.fromFile(mFile)*//*FileProvider.getUriForFile(RegistActivity.this, RegistActivity.this.getPackageName() + ".fileprovider", mFile));*/
+                    startPhotoZoom(FileProvider7.getUriForFile(RegistActivity.this,mFile));
                     break;
                 case CHOOSE_PHOTO:
 
@@ -297,7 +308,7 @@ public class RegistActivity extends ActionBarActivity {
                         //最后根据索引值获取图片路径
 
                         path = cursor.getString(column_index);
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
 
@@ -316,13 +327,16 @@ public class RegistActivity extends ActionBarActivity {
         }
 
     }
+
     /**
      * 打开系统图片裁剪功能
      *
-     * @param uri  uri
+     * @param uri uri
      */
     private void startPhotoZoom(Uri uri) {
+
         Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         intent.setDataAndType(uri, "image/*");
         intent.putExtra("crop", true);
         intent.putExtra("aspectX", 1);
@@ -334,8 +348,8 @@ public class RegistActivity extends ActionBarActivity {
         intent.putExtra("return-data", true);
         intent.putExtra("noFaceDetection", true);
         startActivityForResult(intent, CUT_PHOTO);
-
     }
+
     private void setPicToView(Intent data) {
         Bundle bundle = data.getExtras();
         if (bundle != null) {
@@ -362,11 +376,11 @@ public class RegistActivity extends ActionBarActivity {
             //                path = picturePath;
             //            }
 
-            if(mFile != null){
+            if (mFile != null) {
                 path = mFile.getPath();
             }
 
-            Toast.makeText(RegistActivity.this,"path:"+path,Toast.LENGTH_SHORT).show();
+            Toast.makeText(RegistActivity.this, "path:" + path, Toast.LENGTH_SHORT).show();
 
             final BmobFile bmobFile = new BmobFile(new File(path));
             //Bmob这个上传文件的貌似不成功..........................
@@ -398,39 +412,112 @@ public class RegistActivity extends ActionBarActivity {
 
         }
     }
-    private void UploadIcon() {
-            if(mFile != null){
-                path = mFile.getPath();
-            }
 
-            Toast.makeText(RegistActivity.this,"path:"+path,Toast.LENGTH_SHORT).show();
-
-            final BmobFile bmobFile = new BmobFile(new File(path));
-            //Bmob这个上传文件的貌似不成功..........................
-            bmobFile.uploadblock(new UploadFileListener() {
-
-                @Override
-                public void done(BmobException e) {
-                    if (e == null) {
-                        Toast.makeText(RegistActivity.this, "pic is success", Toast.LENGTH_SHORT).show();
-                        // MyUser myUser =MyUser.getCurrentUser(MyUser.class);
-                        //得到上传的图片地址
-                        String fileUrl = bmobFile.getFileUrl();
-                        regist_user.setIcon(bmobFile);
-                        //更新图片地址
-                        regist_user.update(regist_user.getObjectId(), new UpdateListener() {
-                            @Override
-                            public void done(BmobException e) {
-                                if (e == null) {
-                                    Toast.makeText(RegistActivity.this, "update", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }
-                        });
-                    }
-                }
-            });
-
+    /* public static void grantUriPermission(Context context, Intent intent, Uri saveUri) {
+        *//* if (!isNeedAdapt()) {
+            return;
+        }*//*
+        if (context == null || intent == null || saveUri == null) {
+            return;
         }
+        //网络路径的特殊处理，不需要权限
+        if (saveUri.getScheme() != null && saveUri.getScheme().startsWith("http")) {
+            //不需要授权
+            return;
+        }
+        //1、授权(系统相册、相机、裁剪时需要)  -- 这种写法待分析
+        List<ResolveInfo> resInfoList = context.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            if (TextUtils.isEmpty(packageName)) {
+                continue;
+            }
+            context.grantUriPermission(packageName, saveUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        }
+        //2、授权(安装apk时需要)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+    }*/
+    private void UploadIcon() {
+        if (mFile != null) {
+            path = mFile.getPath();
+        }
+        Toast.makeText(RegistActivity.this, "path:" + path, Toast.LENGTH_SHORT).show();
 
+        final BmobFile bmobFile = new BmobFile(new File(path));
+        //Bmob这个上传文件的貌似不成功..........................
+        bmobFile.uploadblock(new UploadFileListener() {
+
+            @Override
+            public void done(BmobException e) {
+                if (e == null) {
+                    Toast.makeText(RegistActivity.this, "pic is success", Toast.LENGTH_SHORT).show();
+                    // MyUser myUser =MyUser.getCurrentUser(MyUser.class);
+                    //得到上传的图片地址
+                    String fileUrl = bmobFile.getFileUrl();
+                    regist_user.setIcon(bmobFile);
+                    //更新图片地址
+                    regist_user.update(regist_user.getObjectId(), new UpdateListener() {
+                        @Override
+                        public void done(BmobException e) {
+                            if (e == null) {
+                                Toast.makeText(RegistActivity.this, "update", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==TAKE_PHOTO){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(RegistActivity.this, "Permission Allowed", Toast.LENGTH_SHORT).show();
+                takePhotoNoCompress();
+            }
+            else {
+                // Permission Denied
+                Toast.makeText(RegistActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void takePhotoNoCompress() {
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            File file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            mFile = new File(file, System.currentTimeMillis() + ".jpg");
+
+
+
+            path = mFile.getAbsolutePath();
+
+            Uri fileUri = FileProvider7.getUriForFile(this, mFile);
+
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+            startActivityForResult(takePictureIntent, TAKE_PHOTO);
+        }
+    }
+
+    public void takePhotoNoCompress(View view) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    TAKE_PHOTO);
+
+        } else {
+            takePhotoNoCompress();
+        }
+    }
 }
