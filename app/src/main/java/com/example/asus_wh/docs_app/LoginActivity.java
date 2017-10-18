@@ -9,8 +9,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -42,7 +40,7 @@ import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.SaveListener;
-import cutsom_imageview.RoundimageView;
+import cutsom_imageview.CircleImageView;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -73,7 +71,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private RoundimageView roundimageView;
+    private CircleImageView circleImageView;
     private Button btn_login;
     private Button btn_forgot;
     private Button btn_regist;
@@ -93,13 +91,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         initialize();
         initView();
 
-        roundimageView=(RoundimageView) findViewById(R.id.img_round);
-        Bitmap bitmap=  BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher_round);
-        roundimageView.setBitmap(bitmap);
+        //circleImageView=(CircleImageView) findViewById(R.id.img_round);
+       /* Bitmap bitmap=  BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher_round);
+        circleImageView.setBitmap(bitmap);*/
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        mEmailView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
 
+                }
+                else{
+
+                }
+            }
+        });
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -194,6 +202,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         btn_login=(Button)findViewById(R.id.email_sign_in_button);
         btn_forgot=(Button)findViewById(R.id.btn_forgot_psw);
         btn_regist=(Button)findViewById(R.id.btn_new_regist);
+        circleImageView=(CircleImageView) findViewById(R.id.img_round);
     }
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {

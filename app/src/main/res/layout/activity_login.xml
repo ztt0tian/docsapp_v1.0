@@ -20,11 +20,14 @@
         android:layout_marginBottom="8dp"
         android:visibility="gone"/>
 
-     <cutsom_imageview.RoundimageView
+     <cutsom_imageview.CircleImageView
          android:id="@+id/img_round"
          android:layout_width="100dp"
          android:layout_height="100dp"
-         android:layout_margin="5px"/>
+         android:layout_margin="5px"
+         android:src="@drawable/default_head"
+         app:border_width="2dp"
+         app:border_color="@color/borderHead"/>
 
     <ScrollView
         android:id="@+id/login_form"
